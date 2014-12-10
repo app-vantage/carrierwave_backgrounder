@@ -1,9 +1,16 @@
+require 'active_job'
+
 module CarrierWave
   module Workers
-    class Base < Struct.new(:klass, :id, :column)
+    class Base < ActiveJob::Base
 
-      def self.perform(*args)
-        new(*args).perform
+      attr_accessor :klass
+      attr_accessor :id
+      attr_accessor :column
+
+      def initialize(*args)
+        super
+        set_args(*args) if args.present?
       end
 
       def perform(*args)

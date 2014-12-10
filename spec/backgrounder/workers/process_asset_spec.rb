@@ -13,7 +13,7 @@ describe CarrierWave::Workers::ProcessAsset do
       worker_class.expects(:new).with(*args).returns(worker)
       worker_class.any_instance.expects(:perform)
 
-      worker_class.perform(*args)
+      worker_class.perform_now(*args)
     end
   end
 

@@ -9,6 +9,21 @@ module CarrierWave
       # Base class for all things orm
       module Base
 
+        def self.included(base)
+           base.extend ClassMethods
+        end
+
+        module ClassMethods
+          def default_queue(queue_name=nil)
+            if queue_name
+              @default_queue = queue_name
+            elsif !@default_queue
+              @default_queue = :carrierwave
+            end
+            @default_queue
+          end
+        end
+
         ##
         # User#process_in_background will process and create versions in a background process.
         #
@@ -38,13 +53,13 @@ module CarrierWave
         #     add_column :users, :avatar_processing, :boolean
         #   end
         #
-        def process_in_background(column, worker=::CarrierWave::Workers::ProcessAsset)
+        def process_in_background(column, worker: ::CarrierWave::Workers::ProcessAsset, queue: nil)
           attr_accessor :"process_#{column}_upload"
 
           mod = Module.new
           include mod
 
-          _define_shared_backgrounder_methods(mod, column, worker)
+          _define_shared_backgrounder_methods(mod, column, worker, queue)
         end
 
         ##
@@ -69,7 +84,7 @@ module CarrierWave
         #     store_in_background :avatar, CustomWorker
         #   end
         #
-        def store_in_background(column, worker=::CarrierWave::Workers::StoreAsset)
+        def store_in_background(column, worker: ::CarrierWave::Workers::StoreAsset, queue: nil)
           attr_accessor :"process_#{column}_upload"
 
           mod = Module.new
@@ -91,12 +106,12 @@ module CarrierWave
 
           RUBY
 
-          _define_shared_backgrounder_methods(mod, column, worker)
+          _define_shared_backgrounder_methods(mod, column, worker, queue)
         end
 
         private
 
-        def _define_shared_backgrounder_methods(mod, column, worker)
+        def _define_shared_backgrounder_methods(mod, column, worker, queue)
           mod.class_eval  <<-RUBY, __FILE__, __LINE__ + 1
             def #{column}_updated?; true; end
 
@@ -109,7 +124,7 @@ module CarrierWave
             end
 
             def enqueue_#{column}_background_job
-              CarrierWave::Backgrounder.enqueue_for_backend(#{worker}, self.class.name, id.to_s, #{column}.mounted_as)
+              #{worker}.set(#{queue}).perform_later(self.class.name, id.to_s, #{column}.mounted_as.to_s)
             end
           RUBY
         end

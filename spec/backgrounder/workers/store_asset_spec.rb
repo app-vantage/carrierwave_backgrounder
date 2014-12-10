@@ -13,7 +13,7 @@ describe CarrierWave::Workers::StoreAsset do
       args = [user, '22', :image]
       worker_class.expects(:new).with(*args).returns(worker)
       worker_class.any_instance.expects(:perform)
-      worker_class.perform(*args)
+      worker_class.perform_now(*args)
     end
   end
 

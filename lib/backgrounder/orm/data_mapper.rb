@@ -5,7 +5,7 @@ module CarrierWave
       module DataMapper
         include CarrierWave::Backgrounder::ORM::Base
 
-        def process_in_background(column, worker=::CarrierWave::Workers::ProcessAsset)
+        def process_in_background(column, worker: ::CarrierWave::Workers::ProcessAsset, queue: nil)
           super
 
           class_eval  <<-RUBY, __FILE__, __LINE__ + 1
@@ -16,7 +16,7 @@ module CarrierWave
           RUBY
         end
 
-        def store_in_background(column, worker=::CarrierWave::Workers::StoreAsset)
+        def store_in_background(column, worker: ::CarrierWave::Workers::StoreAsset, queue: nil)
           super
 
           class_eval  <<-RUBY, __FILE__, __LINE__ + 1
@@ -33,7 +33,7 @@ module CarrierWave
 
         private
 
-        def _define_shared_backgrounder_methods(mod, column, worker)
+        def _define_shared_backgrounder_methods(mod, column, worker, queue)
           before :save, :"set_#{column}_changed"
           after  :save, :"enqueue_#{column}_background_job"
 
@@ -44,7 +44,7 @@ module CarrierWave
 
             def enqueue_#{column}_background_job
               if enqueue_#{column}_background_job?
-                CarrierWave::Backgrounder.enqueue_for_backend(#{worker}, self.class.name, id, #{column}.mounted_as)
+                #{worker}.set(#{queue}).perform_later(self.class.name, id.to_s, #{column}.mounted_as.to_s)
                 @#{column}_changed = false
               end
             end

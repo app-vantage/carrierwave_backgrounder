@@ -1,4 +1,10 @@
 
+## 0.5.0
+
+### enhancements
+  * Use Active Job as backend abstraction.
+  * Allow to specify custom queue per uploader.
+
 ## 0.4.1
 
 ### enhancements
@@ -88,4 +94,3 @@
 ### bug fixes
   * Girl Friday incorrectly referenses class #92
   * Add documentation for testing with rspec #84.
-

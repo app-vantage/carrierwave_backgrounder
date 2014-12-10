@@ -6,8 +6,7 @@
 
 I like CarrierWave. That being said, I don't like tying up app instances waiting for images to process.
 
-This gem addresses that by offloading processing or storage/processing to a background task.
-We currently support Delayed Job, Resque, Sidekiq, SuckerPunch, Girl Friday, Qu, and Queue Classic.
+This gem addresses that by offloading processing or storage/processing to a Active Job background task.
 
 ## Background options
 
@@ -47,11 +46,11 @@ Run the generator which will create an initializer in config/initializers.
   rails g carrierwave_backgrounder:install
 ```
 
-You can pass additional configuration options to Girl Friday and Sidekiq:
+You can set the name of the default queue:
 
 ```ruby
 CarrierWave::Backgrounder.configure do |c|
-  c.backend :girl_friday, queue: :awesome_queue, size: 3, store: GirlFriday::Store::Redis
+  c.default_queue :default_queue
 end
 ```
 
@@ -115,11 +114,11 @@ This must be set before you assign an upload:
 ```
 
 ### Override worker
-To overide the worker in cases where additional methods need to be called or you have app specific requirements, pass the worker class as the
+To override the worker in cases where additional methods need to be called or you have app specific requirements, pass the worker class as the
 second argument:
 
 ```ruby
-process_in_background :avatar, MyParanoidWorker
+process_in_background :avatar, worker: MyParanoidWorker
 ```
 
 Then create a worker that subclasses carrierwave_backgrounder's worker:
@@ -137,7 +136,7 @@ end
 ```
 ### Testing with Rspec
 We use the after_commit hook when using active_record. This creates a problem when testing with Rspec because after_commit never gets fired
-if you're using trasactional fixtures. One solution to the problem is to use the [TestAfterCommit gem](https://github.com/grosser/test_after_commit).
+if you're using transactional fixtures. One solution to the problem is to use the [TestAfterCommit gem](https://github.com/grosser/test_after_commit).
 There are various other solutions in which case google is your friend.
 
 ### Uploaders mounted on mongoid embedded documents
