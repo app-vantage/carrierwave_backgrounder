@@ -124,7 +124,7 @@ module CarrierWave
             end
 
             def enqueue_#{column}_background_job
-              #{worker}.set(#{queue}).perform_later(self.class.name, id.to_s, #{column}.mounted_as.to_s)
+              #{worker}#{".set(queue: :#{queue})" if queue}.perform_later(self.class.name, id.to_s, #{column}.mounted_as.to_s)
             end
           RUBY
         end
