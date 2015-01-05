@@ -1,4 +1,9 @@
 
+## 0.5.2
+
+### bug fixes
+  * Fix specifying of custom queue.
+
 ## 0.5.1
 
 ### bug fixes
