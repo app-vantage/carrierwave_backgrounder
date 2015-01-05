@@ -113,9 +113,16 @@ This must be set before you assign an upload:
 @user.attributes = params[:user]
 ```
 
+### Specific queue
+To enqueue jobs in a queue different from the default queue, pass the name of the queue as `queue` keyword argument:
+
+```ruby
+process_in_background :avatar, queue: :low_priority
+```
+
 ### Override worker
-To override the worker in cases where additional methods need to be called or you have app specific requirements, pass the worker class as the
-second argument:
+To override the worker in cases where additional methods need to be called or you have app specific requirements, pass the class
+as `worker` keyword argument:
 
 ```ruby
 process_in_background :avatar, worker: MyParanoidWorker
