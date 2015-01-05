@@ -1,4 +1,9 @@
 
+## 0.5.1
+
+### bug fixes
+  * Fix processing never beeing deferred to background as long as processing is enabled on class level.
+
 ## 0.5.0
 
 ### enhancements
