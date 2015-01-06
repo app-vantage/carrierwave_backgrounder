@@ -58,6 +58,11 @@ module CarrierWave
 
           mod = Module.new
           include mod
+          mod.class.class_eval <<-RUBY, __FILE__, __LINE__ + 1
+            def process_queue_name_#{column}
+              #{queue ? ":#{queue}" : "Backgrounder.default_queue"}
+            end
+          RUBY
 
           _define_shared_backgrounder_methods(mod, column, worker, queue)
         end
@@ -103,7 +108,11 @@ module CarrierWave
             def store_#{column}!
               super if process_#{column}_upload
             end
-
+          RUBY
+          mod.class.class_eval <<-RUBY, __FILE__, __LINE__ + 1
+            def store_queue_name_#{column}
+              #{queue ? ":#{queue}" : "Backgrounder.default_queue"}
+            end
           RUBY
 
           _define_shared_backgrounder_methods(mod, column, worker, queue)
@@ -124,7 +133,9 @@ module CarrierWave
             end
 
             def enqueue_#{column}_background_job
-              #{worker}#{".set(queue: :#{queue})" if queue}.perform_later(self.class.name, id.to_s, #{column}.mounted_as.to_s)
+              #{worker}
+                .set(queue: "#{queue || Backgrounder.default_queue}")
+                .perform_later(self.class.name, id.to_s, #{column}.mounted_as.to_s)
             end
           RUBY
         end

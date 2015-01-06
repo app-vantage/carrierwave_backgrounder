@@ -44,7 +44,7 @@ module CarrierWave
 
             def enqueue_#{column}_background_job
               if enqueue_#{column}_background_job?
-                #{worker}#{".set(queue: :#{queue})" if queue}.perform_later(self.class.name, id.to_s, #{column}.mounted_as.to_s)
+                super
                 @#{column}_changed = false
               end
             end
