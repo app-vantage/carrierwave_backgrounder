@@ -1,4 +1,12 @@
 
+## 0.5.3
+
+### enhancements
+  * Class methods to get queue name for store/process of specific column.
+
+### bug fixes
+  * Should use default queue, if queue parameter is not supplied.
+
 ## 0.5.2
 
 ### bug fixes
